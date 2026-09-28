@@ -1,0 +1,181 @@
+# CV sections that are not research projects or publications.
+# Each top-level key is one section. "order" sets its position on the CV page.
+# Item fields (all optional except title): org, place, date, detail, link, bullets.
+# Research experience and publications come from src/content/research and
+# src/content/publications, so they are not repeated here.
+
+education:
+  heading: Education
+  order: 1
+  items:
+    - title: Ph.D. in Physics, in progress
+      org: Georgia Institute of Technology
+      date: Fall 2024–Present
+      bullets:
+        - "Co-advisors: David R. Ballantyne and Tamara Bogdanović (Summer 2026–Present)."
+        - "Research focus: Radio emission and detectability of dual active galactic nuclei."
+    - title: M.S. in Physics, non-thesis option
+      org: Georgia Institute of Technology
+      date: Summer 2025
+      bullets:
+        - "Completed during doctoral study; M.S. major GPA: 3.80/4.00."
+    - title: B.S. in Physics and Astronomy
+      org: University of Arizona
+      date: August 2020–May 2024
+
+affiliation:
+  heading: Academic Affiliation
+  order: 2
+  items:
+    - title: Center for Relativistic Astrophysics
+      org: Georgia Institute of Technology
+      date: Summer 2026–Present
+
+projects:
+  heading: Selected Academic Projects
+  order: 5
+  items:
+    - title: "Cosmological Initial Conditions: CMB Power Spectra and the Zel'dovich Approximation"
+      org: "PHYS 7127: Cosmology & Galaxies, Georgia Institute of Technology"
+      detail: "Computational term project · Instructor: John Wise"
+      date: Fall 2025
+      bullets:
+        - "Used the Boltzmann solver CAMB with Planck 2018 parameters to compute CMB temperature and linear matter power spectra, located the first acoustic peak (ℓ ≈ 220) and compared its scale with the sound horizon at last scattering, and studied the effects of baryon fraction, curvature, low dark-matter density, early reionization and massive neutrinos."
+        - "Wrote Python code to generate cosmological initial conditions at z = 99 in a (20 comoving Mpc)³, 64³ volume: Gaussian random density fields sampled from the CAMB matter power spectrum with FFTs, and Zel'dovich dark-matter particle displacements and velocities, for Planck 2018 and open (ΩΛ = 0) cosmologies."
+    - title: Photometric Analysis of the Eclipsing Binary GALEX J19444+5459
+      org: ASTR 302, University of Arizona
+      detail: "Collaborators: R. Basant and A. Olson"
+      date: December 2022
+      bullets:
+        - Obtained V-band observations with the Kuiper 61-inch telescope and reduced the imaging data using IRAF, including noise and cosmic-ray correction and photometry.
+        - Constructed light curves, determined the orbital period and primary and secondary eclipse depths, and estimated component radii for the brown dwarf and subdwarf B star.
+    - title: Numerical Solution of the Two-Dimensional Schrödinger Equation
+      org: PHYS 305, University of Arizona
+      date: May 2023
+      bullets:
+        - Applied finite-difference methods and eigenvalue calculations to solve the two-dimensional Schrödinger equation for different potentials.
+        - Analyzed energy levels and wave functions and visualized the resulting quantum states.
+    - title: The 1999 Odisha Tropical Cyclone
+      org: ATMO 436A, University of Arizona
+      detail: "Collaborator: G. Fabian"
+      date: May 2023
+      link: https://doi.org/10.13140/RG.2.2.32826.98242
+      bullets:
+        - Examined the cyclone’s formation, intensity, and contributing meteorological factors, alongside its effects on human life, the environment, and agriculture.
+        - "Project report: doi:10.13140/RG.2.2.32826.98242."
+
+teaching:
+  heading: Teaching Experience
+  order: 6
+  items:
+    - title: "PHYS 2212: Principles of Physics II"
+      org: Graduate Teaching Assistant, School of Physics, Georgia Institute of Technology
+      date: Spring 2025; Summer 2025; Fall 2025; Summer 2026
+      bullets:
+        - Supported laboratory instruction in introductory electricity and magnetism, helping students carry out experiments and connect their observations to physical principles.
+        - Facilitated collaborative group problem-solving sessions, guiding students through conceptual reasoning, mathematical setup, and quantitative solutions.
+        - Proctored and graded course examinations.
+    - title: "PHYS 3208: Modern Optics Laboratory"
+      org: Graduate Teaching Assistant, School of Physics, Georgia Institute of Technology
+      detail: "Instructor: Colin Parker"
+      date: Spring 2026
+      bullets:
+        - Provided hands-on assistance with experimental setup, optical measurements, and laboratory procedures in geometrical and wave optics.
+        - Guided students through experiments on reflection and refraction, imaging, polarization, diffraction, and interferometry.
+        - Graded laboratory reports, evaluating experimental methods, quantitative data analysis, interpretation of results, and scientific communication.
+    - title: Subject Tutor, Academic Support for Student-Athletes
+      org: CATS Academics, University of Arizona
+      date: August–October 2022
+      bullets:
+        - Tutored college algebra, Calculus I and II, and introductory mechanics; monitored student progress and coordinated with academic support staff to address learning needs.
+
+professional:
+  heading: Professional Experience
+  order: 7
+  items:
+    - title: Summer Intern, TIMESTEP Summer Tech Internship Program
+      org: Delta Thermal Inc.
+      place: Tucson, Arizona
+      date: May–August 2023
+      bullets:
+        - Developed Python tools to analyze temperatures in MLX90640 thermal-camera images and an algorithm for automated image-translation estimation.
+        - Analyzed temperature time series from the Asarco Ray site, using AWS for data management and machine-learning methods to investigate temperature trends.
+
+service:
+  heading: Service and Outreach
+  order: 8
+  items:
+    - title: Judge, 7th Annual Harrison Science & Engineering Fair
+      date: January 2025
+      bullets:
+        - Evaluated high-school student research projects in a virtual fair using video presentations, project boards, and the provided judging rubric, with attention to scientific methodology and clarity of presentation.
+    - title: Former Volunteer Teacher
+      org: Jeevan Rekha Parishad
+      place: Bhubaneswar, India
+      bullets:
+        - Taught students from disadvantaged backgrounds and provided preparation for Indian competitive examinations, including JEE Main and Advanced.
+        - Developed educational plans to support students’ academic development and participated in the organization’s community initiatives.
+
+awards:
+  heading: Honors and Awards
+  order: 9
+  items:
+    - title: Global Wildcat Scholarship
+      org: University of Arizona
+    - title: Academic Year Academic Distinction
+      org: University of Arizona
+      date: "2022"
+    - title: Dean’s List
+      org: University of Arizona
+      date: Spring 2021; Spring 2022
+    - title: Dean’s List with Distinction
+      org: University of Arizona
+      date: Fall 2021
+
+presentations:
+  heading: Presentations
+  order: 10
+  items:
+    - title: "“Academia to Industry, My Journey as an Intern at Delta Thermal Inc.”"
+      org: TIMESTEP Summer Tech Internship Symposium, Arizona Space Institute, University of Arizona
+      date: September 2023
+      detail: Internship symposium
+    - title: "“Rotational Properties of 21 Sc Galaxies with a Large Range of Luminosities and Radii, from NGC 4605 (R = 4 kpc) to UGC 2885 (R = 122 kpc).”"
+      org: PHYS 7127, Cosmology and Galaxies, Georgia Institute of Technology
+      date: Fall 2025
+      featured: true
+      detail: Seminal-paper presentation on the work of V. C. Rubin, W. K. Ford, Jr., and N. Thonnard (1980)
+    - title: "“The 1999 Odisha Tropical Cyclone.”"
+      org: ATMO 436A, University of Arizona
+      date: May 2023
+      detail: Course presentation
+    - title: "“Synchrotron Radiation: Insights into Cosmic Phenomena.”"
+      org: ASTR 300B, University of Arizona
+      date: May 2023
+      detail: Course presentation
+    - title: "“Investigating the Eclipsing Binary GALEX J19444+5459.”"
+      org: ASTR 302 Final Project Presentation, Steward Observatory, University of Arizona
+      date: December 2022
+      detail: Course presentation
+
+coursework:
+  heading: Selected Coursework
+  order: 11
+  items:
+    - title: Physics and mathematical methods
+      detail: Electromagnetism; Quantum Mechanics I and II; Statistical Mechanics I; Mathematical Methods in Physics I.
+    - title: Astrophysics and optics
+      detail: Cosmology and Galaxies; Radiative Processes; Optics.
+    - title: Additional undergraduate preparation
+      detail: Computational Physics; Differential Equations; Classical Mechanics; Electricity and Magnetism I and II; Stellar Structure and Evolution; Dynamics and Mechanics in Astrophysics.
+
+skills:
+  heading: Technical Skills
+  order: 12
+  items:
+    - title: Programming
+      detail: Python, MATLAB, C++, Java.
+    - title: Scientific methods
+      detail: Numerical modeling, finite-difference methods, eigenvalue calculations, statistical analysis, time-series analysis, machine learning, photometric data reduction.
+    - title: Computing and research tools
+      detail: High-performance computing, AWS, Git, Jupyter, IRAF, Linux, LaTeX.

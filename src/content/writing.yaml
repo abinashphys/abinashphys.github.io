@@ -1,0 +1,18 @@
+# Selected essays from Cosmic Conundrum shown on the home page.
+# Add, remove, or reorder freely; they are sorted newest first.
+- id: gravitational-lensing
+  title: "Gravitational Lensing: An Astrophysical Window to the Universe"
+  url: https://cosmicconundrum.org/gravitational-lensing-an-astrophysical-window-into-the-universe/
+  date: 2024-06-08
+- id: cmb
+  title: "The Cosmic Microwave Background: The Echo of the Big Bang"
+  url: https://cosmicconundrum.org/the-cosmic-microwave-background-the-echo-of-the-big-bang/
+  date: 2024-05-26
+- id: jwst
+  title: "James Webb Space Telescope: Our Path to Study the Origins of the Universe"
+  url: https://cosmicconundrum.org/james-webb-space-telescope-our-path-to-study-the-origins-of-the-universe/
+  date: 2023-03-11
+- id: dark-matter
+  title: "What Is All This Fuss About Dark Matter and Dark Energy?"
+  url: https://cosmicconundrum.org/what-is-all-this-fuss-about-dark-matter-and-dark-energy/
+  date: 2021-10-26

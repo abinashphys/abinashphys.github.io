@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PublicationEntry from '../components/PublicationEntry.astro';
+import { getPublications, getCvSections } from '../lib/site';
+
+const pubs = await getPublications();
+const groups = [
+  { type: 'peer-reviewed', heading: 'Peer-reviewed articles' },
+  { type: 'submitted', heading: 'Submitted' },
+  { type: 'in-prep', heading: 'In preparation' },
+  { type: 'proceedings', heading: 'Conference proceedings' },
+  { type: 'other', heading: 'Other' },
+]
+  .map((g) => ({ ...g, items: pubs.filter((p) => p.data.type === g.type) }))
+  .filter((g) => g.items.length);
+const presentations = (await getCvSections()).find((s) => s.id === 'presentations');
+let n = 0;
+---
+
+<Base title="Publications" current="publications/">
+  <PageHead label="Papers & presentations" title="Publications.">
+    <p>
+      My name is underlined in each author list, and my own contribution is described under each paper so that it is
+      distinct from the work of my co-authors.
+    </p>
+  </PageHead>
+
+  <div class="wrap page-body">
+    {
+      groups.map((g) => (
+        <section class="section" aria-labelledby={`g-${g.type}`}>
+          <div class="section-head">
+            <h2 id={`g-${g.type}`}>{g.heading}</h2>
+            <span class="eyebrow">{String(++n).padStart(2, '0')}</span>
+          </div>
+          {g.items.map((p) => (
+            <PublicationEntry pub={p} />
+          ))}
+        </section>
+      ))
+    }
+
+    {
+      presentations && (
+        <section class="section" aria-labelledby="pres-h">
+          <div class="section-head">
+            <h2 id="pres-h">{presentations.data.heading}</h2>
+            <span class="eyebrow">{String(++n).padStart(2, '0')}</span>
+          </div>
+          <ul class="rows">
+            {presentations.data.items.map((p) => (
+              <li class="row">
+                <p class="row__when">{p.date}</p>
+                <div class="row__what">
+                  <h3>{p.title}</h3>
+                  {p.detail && <p>{p.detail}</p>}
+                </div>
+                <p class="row__where">{p.org}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</Base>

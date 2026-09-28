@@ -1,0 +1,158 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import InspiralFigure from '../components/InspiralFigure.astro';
+import ConceptArt from '../components/ConceptArt.astro';
+import PublicationEntry from '../components/PublicationEntry.astro';
+import { getProfile, getResearch, getPublications, getCvSections, url } from '../lib/site';
+
+const profile = await getProfile();
+const research = await getResearch();
+const current = research.find((r) => r.data.status === 'current');
+const pubs = await getPublications();
+const featured = pubs.filter((p) => p.data.featured);
+const shownPubs = featured.length ? featured : pubs.slice(0, 2);
+const talks = ((await getCvSections()).find((s) => s.id === 'presentations')?.data.items ?? []).filter((i) => i.featured);
+const highlights = (await getCollection('highlights')).sort((a, b) => a.data.order - b.data.order);
+const [first, ...rest] = profile.name.split(' ');
+const portrait = (w: number, ext: string) => url(`images/portrait-${w}.${ext}`);
+const srcset = (ext: string) => [700, 1100, 1600].map((w) => `${portrait(w, ext)} ${w}w`).join(', ');
+const sizes = '(max-width: 700px) 100vw, (max-width: 1376px) 48vw, 610px';
+---
+
+<Base preload={[{ href: portrait(1100, 'webp'), as: 'image', type: 'image/webp', imagesrcset: srcset('webp'), imagesizes: sizes }]}>
+  <div class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="portrait-lead">
+        <picture>
+          <source type="image/webp" srcset={srcset('webp')} sizes={sizes} />
+          <img class="lead-photo" src={portrait(1100, 'jpg')} srcset={srcset('jpg')} sizes={sizes} alt={profile.hero.photoAlt} width="1100" height="825" fetchpriority="high" />
+        </picture>
+        <div class="lead-copy">
+          <span class="eyebrow">{profile.hero.eyebrow}</span>
+          <h1 id="hero-title">{first}<br />{rest.join(' ')}.</h1>
+          <p>{profile.hero.lead}</p>
+          <div class="lead-links">
+            <a href="#research">My research ↓</a>
+            <a href={url(profile.cvPdf)}>Curriculum vitae ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-heading">
+        <div>
+          <span class="eyebrow">{profile.feature.eyebrow}</span>
+          <h2 set:html={profile.feature.title.replace(/’s /, '’s<br />')} />
+        </div>
+        <p>{profile.feature.intro}</p>
+      </div>
+      <InspiralFigure />
+    </section>
+
+    <section class="section" id="research" aria-labelledby="research-h">
+      <div class="section-head">
+        <h2 id="research-h">Questions I’m working on</h2>
+        <span class="eyebrow">01 — Research highlights</span>
+      </div>
+      <div class="research-grid">
+        {
+          highlights.map((h) => (
+            <article class="research-item">
+              <ConceptArt kind={h.data.art} />
+              <div class="art-caption">{h.data.artCaption}</div>
+              <span class="eyebrow">{h.data.eyebrow}</span>
+              <h3>{h.data.question}</h3>
+              <p>{h.data.text}</p>
+              <a class="textlink" href={url(h.data.link)}>
+                {h.data.linkText}
+              </a>
+            </article>
+          ))
+        }
+      </div>
+      {
+        current && (
+          <details class="research-detail" id="project-details">
+            <summary>Project context, funding and contributions +</summary>
+            <p>
+              {current.data.title} · {current.data.period}. {current.data.advisors}. {current.data.unit},{' '}
+              {current.data.institution}.
+            </p>
+            <p>
+              Supported by {current.data.funding}. Ballantyne is PI and Bogdanović is Co-PI. Existing orbital-evolution
+              calculations and IllustrisTNG host-galaxy properties are inputs to this work; the dynamical-friction orbital
+              solver predates my contribution. My work develops the accretion, jet and radio-emission framework. The three
+              highlights above describe connected research themes within this project, not three completed results.
+            </p>
+          </details>
+        )
+      }
+    </section>
+
+    <section class="section" id="publications" aria-labelledby="pubs-h">
+      <div class="section-head">
+        <h2 id="pubs-h">Selected work</h2>
+        <span class="eyebrow">02 — Papers &amp; presentations</span>
+      </div>
+      <div class="work-grid">
+        <aside class="section-aside">
+          <p>From the mathematics of light to the astrophysics of black holes.</p>
+          <a class="textlink" href={url('publications/')}>All publications &amp; talks</a>
+          &nbsp;&nbsp;<a class="textlink" href={url(profile.cvPdf)}>Full academic CV ↗</a>
+        </aside>
+        <div>
+          {shownPubs.map((p) => <PublicationEntry pub={p} />)}
+          {
+            talks.map((t) => (
+              <article class="pub-entry">
+                <div class="year">{t.date?.match(/\d{4}/)?.[0]}</div>
+                <div>
+                  <span class="eyebrow">Course presentation / {t.org}</span>
+                  <h3>{t.title}</h3>
+                  {t.detail && <p>{t.detail}.</p>}
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="about" aria-labelledby="about-h">
+      <span class="eyebrow">03 — Background</span>
+      <h2 id="about-h">About me.</h2>
+      {profile.about.map((p) => <p>{p}</p>)}
+      <div class="about-links">
+        <a href={url(profile.cvPdf)}>Download CV ↗</a>
+        <a href={url('research/')}>Research in detail</a>
+        <a href={`mailto:${profile.email}`}>Get in touch ↗</a>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="Teaching and writing">
+      <article>
+        <span class="eyebrow">{profile.teachingNote.eyebrow}</span>
+        <h3>{profile.teachingNote.title}</h3>
+        <p>{profile.teachingNote.text}</p>
+        <a href={url('teaching/')}>Teaching &amp; service</a>
+      </article>
+      <article>
+        <span class="eyebrow">{profile.writingNote.eyebrow}</span>
+        <h3>{profile.writingNote.title}</h3>
+        <p>{profile.writingNote.text}</p>
+        <a href={profile.writing.url} rel="noopener">Visit the writing archive ↗</a>
+      </article>
+    </section>
+
+    <details class="research-detail" id="provenance" style="margin:0 0 24px">
+      <summary>About Figure 01 +</summary>
+      <p>
+        Figure 01 plays back the orbit of the secondary black hole from a semi-analytic simulation that is part of
+        ongoing work; the results are preliminary and not yet published. The black holes’ positions, masses and jet powers
+        come from the simulation. The host-galaxy light, the accretion-disk glyphs and the jets’ length, direction and
+        texture are illustrative; jet brightness follows the simulated jet power. Nothing is shown beyond the end of the
+        simulated inspiral.
+      </p>
+    </details>
+  </div>
+</Base>

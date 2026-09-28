@@ -1,0 +1,85 @@
+# Basic identity and contact details used across the site.
+# Keep the top-level key "main" — the pages look it up by that name.
+main:
+  name: Abinash Das
+  nameShort: A. Das # how your name appears in author lists (it gets highlighted)
+  position: Ph.D. Student in Physics
+  department: School of Physics
+  institution: Georgia Institute of Technology
+  center: Center for Relativistic Astrophysics
+  city: Atlanta, Georgia
+  email: adas406@gatech.edu
+  github: abinashphys
+  cvPdf: cv/Abinash-Das-CV.pdf # file inside /public — replace it to update the CV
+
+  # One sentence under your name on the home page.
+  tagline: >-
+    I model the radio emission of dual active galactic nuclei — pairs of
+    accreting supermassive black holes in post-merger galaxies — toward
+    predictions for next-generation radio surveys.
+
+  # Short biography, shown at the top of the Research page.
+  bio: >-
+    I am a Ph.D. student in the School of Physics at Georgia Tech and a member
+    of the Center for Relativistic Astrophysics, co-advised by David R.
+    Ballantyne and Tamara Bogdanović.
+
+  # Shown above "Earlier research" on the home page.
+  background: >-
+    Before turning to dual AGNs, I worked on ultrafast pulse characterization
+    at Georgia Tech, and on intrinsic galaxy alignments and gamma-ray-burst
+    cosmology as an undergraduate at the University of Arizona.
+
+  # Short line under the name in the red masthead.
+  identity: Physics · Georgia Institute of Technology
+
+  # Portrait-led introduction at the top of the home page.
+  hero:
+    eyebrow: Ph.D. student · Physics · Georgia Tech
+    lead: >-
+      I study how pairs of supermassive black holes accrete gas, launch jets
+      and shine at radio wavelengths.
+    photoAlt: Abinash Das in graduation regalia at Georgia Tech
+
+  # Heading above the interactive inspiral figure.
+  feature:
+    eyebrow: Research in progress · 2026
+    title: A black hole’s journey inward.
+    intro: >-
+      Follow the secondary through the host galaxy. Its orbit comes from the
+      numerical simulation; the luminous environment is an illustrative
+      rendering.
+
+  # "About me." section on the home page (one entry per paragraph).
+  about:
+    - >-
+      I’m a Ph.D. student in Physics at the Georgia Institute of Technology and
+      a member of the Center for Relativistic Astrophysics, co-advised by
+      David R. Ballantyne and Tamara Bogdanović.
+    - >-
+      My current work focuses on the radio emission of dual active galactic
+      nuclei. Before this, I worked on ultrafast optics at Georgia Tech and on
+      intrinsic galaxy alignments and gamma-ray-burst cosmology at the
+      University of Arizona.
+
+  teachingNote:
+    eyebrow: In the classroom
+    title: Making physics tangible.
+    text: >-
+      Teaching assistance in Principles of Physics II and Modern Optics
+      Laboratory: experiments, group problem solving and hands-on support.
+
+  writingNote:
+    eyebrow: Beyond the research
+    title: Cosmic Conundrum
+    text: >-
+      My writing on science, ideas and the questions that keep us looking more
+      closely.
+
+  writing:
+    name: Cosmic Conundrum
+    url: https://cosmicconundrum.org/
+    blurb: >-
+      A science blog I write for general readers, with essays on cosmology,
+      astrophysics, and the history of physics, alongside pieces on
+      mathematics, biology, and the environment.

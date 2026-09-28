@@ -1,0 +1,53 @@
+---
+import { nav, url, getProfile } from '../lib/site';
+interface Props {
+  current?: string;
+}
+const { current = '' } = Astro.props;
+const profile = await getProfile();
+---
+
+<header class="masthead">
+  <div class="wrap masthead__row">
+    <a class="brand" href={url('')}>
+      <span class="brand-name">
+        <!-- the site's two-black-hole mark (same drawing as favicon.svg), rendered white -->
+        <svg class="name-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <g fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="12" cy="18" r="2.6"></circle>
+            <circle cx="21" cy="13" r="2.6"></circle>
+            <path d="M13.2 15.2 17 5M10.8 20.8 8.6 27M23 11 27.5 6.5M19 15l-3 3" fill="none"></path>
+          </g>
+        </svg>
+        {profile.name}.
+      </span>
+      <span class="identity">{profile.identity}</span>
+    </a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="site-nav">Menu +</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      {
+        nav.map((item) =>
+          item.external ? (
+            <a href={item.href} rel="noopener" class={item.className}>
+              {item.label} ↗
+            </a>
+          ) : (
+            <a href={url(item.href)} class={item.className} aria-current={current === item.href ? 'page' : undefined}>
+              {item.label}
+            </a>
+          ),
+        )
+      }
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.masthead .menu');
+  const navEl = document.getElementById('site-nav');
+  btn?.addEventListener('click', () => {
+    const open = navEl?.classList.toggle('open') ?? false;
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Close −' : 'Menu +';
+  });
+</script>

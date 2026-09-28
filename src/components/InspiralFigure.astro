@@ -1,0 +1,251 @@
+---
+// Interactive inspiral figure: orbit of the secondary black hole from a
+// simulation in progress, with synchronized history plots and readouts.
+//
+// Build time: reads the web data (public/data/inspiral/v1) to draw the history
+// plots and fill the readouts, so the figure is meaningful without JavaScript.
+// Run time: src/scripts/inspiral.ts lazily loads the same data and renders the
+// canvas scene. Nothing here re-integrates or smooths the orbit.
+import fs from 'node:fs';
+import path from 'node:path';
+import { url } from '../lib/site';
+import { sci, fmtR } from '../lib/format';
+
+const VERSION = 'v1';
+const dataDir = path.join(process.cwd(), 'public', 'data', 'inspiral', VERSION);
+const meta = JSON.parse(fs.readFileSync(path.join(dataDir, 'meta.json'), 'utf8'));
+const overview = JSON.parse(fs.readFileSync(path.join(dataDir, 'overview.json'), 'utf8'));
+
+const T = meta.final_saved_time_Gyr as number;
+const N = meta.rows as number;
+const DEFAULT_T = 1.401; // opening state (same epoch as the approved prototype)
+
+// ---- read one row from a chunk at build time --------------------------------
+type Row = Record<string, number>;
+function readRow(row: number): Row {
+  const c = meta.chunks[Math.floor(row / meta.chunk_rows)];
+  const buf = fs.readFileSync(path.join(dataDir, c.file));
+  const k = row - c.first_row;
+  let off = 0;
+  const out: Row = {};
+  for (const f of meta.fields) {
+    const size = f.dtype.endsWith('8') ? 8 : 4;
+    out[f.name] = size === 8 ? buf.readDoubleLE(off + k * 8) : buf.readFloatLE(off + k * 4);
+    off += size * c.rows;
+  }
+  return out;
+}
+function rowAtTime(t: number): number {
+  const ci = meta.chunks.findIndex((c: any) => c.t1_Gyr >= t);
+  const c = meta.chunks[ci < 0 ? meta.chunks.length - 1 : ci];
+  const buf = fs.readFileSync(path.join(dataDir, c.file));
+  for (let k = 0; k < c.rows; k++) if (buf.readDoubleLE(k * 8) >= t) return c.first_row + k;
+  return c.first_row + c.rows - 1;
+}
+const defaultRow = rowAtTime(DEFAULT_T);
+const d0 = readRow(defaultRow);
+
+// ---- history plots (SVG, built from exact per-bin extrema) -------------------
+const W = 400, H = 150, X0 = 44, X1 = 388, Y0 = 8, Y1 = 104, ZERO_Y = 114;
+const xT = (t: number) => X0 + (t / T) * (X1 - X0);
+const bins = overview.bins as number;
+const binT = (i: number) => ((i + 0.5) / bins) * T;
+
+function envPath(env: ([number | null, number | null, number] | null)[], lo: number, hi: number) {
+  const y = (v: number) => Y1 - ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * (Y1 - Y0);
+  let d = '';
+  env.forEach((b, i) => {
+    if (!b || b[0] === null || b[1] === null) return;
+    const x = xT(binT(i)).toFixed(2);
+    const y0 = y(b[0]), y1 = y(b[1]);
+    d += `M${x} ${y0.toFixed(2)}V${Math.min(y1, y0 - 0.6).toFixed(2)}`;
+  });
+  return d;
+}
+function zeroMarks(env: ([number | null, number | null, number] | null)[]) {
+  return env.map((b, i) => (b && b[2] > 0 ? xT(binT(i)) : null)).filter((x): x is number => x !== null);
+}
+const P_LO = 22, P_HI = 46;
+const powerP1 = envPath(overview.log10_P1, P_LO, P_HI);
+const powerP2 = envPath(overview.log10_P2, P_LO, P_HI);
+const zerosP1 = zeroMarks(overview.log10_P1);
+const zerosP2 = zeroMarks(overview.log10_P2);
+const rMax = Math.ceil(Math.max(...overview.r_pc.filter(Boolean).map((b: number[]) => b[1])) / 200) * 200;
+const radiusPath = envPath(overview.r_pc, 0, rMax);
+const pY = (v: number) => Y1 - ((v - P_LO) / (P_HI - P_LO)) * (Y1 - Y0);
+const rY = (v: number) => Y1 - (v / rMax) * (Y1 - Y0);
+const tTicks = [0, 2, 4, 6];
+
+const base = url(`data/inspiral/${VERSION}/`);
+const cursorX = xT(d0.t_Gyr).toFixed(2);
+const P2 = d0.P2_1e30erg_s * 1e30, P1 = d0.P1_1e30erg_s * 1e30;
+---
+
+<figure class="feature inspiral" id="inspiral" data-base={base} data-rows={N} data-tmax={T} data-default-row={defaultRow}>
+  <div class="lab">
+    <div class="labtop">
+      <span class="label"><span class="dot"></span>01 / Following a black-hole pair</span>
+      <span class="label">Simulation in progress<br />preliminary</span>
+    </div>
+
+    <div class="orbithead">
+      <span>Orbit of the secondary · primary at the origin · positions in pc</span>
+    </div>
+
+    <div class="stage" data-stage>
+      <picture>
+        <source srcset={url('images/inspiral-poster.webp')} type="image/webp" />
+        <img
+          class="stage-poster"
+          src={url('images/inspiral-poster.jpg')}
+          alt={`Still frame at ${d0.t_Gyr.toFixed(3)} Gyr: the secondary black hole (blue) on its recorded orbit about ${Math.round(d0.r_pc)} pc from the primary (orange) at the centre, with the path it has followed so far drawn as faint rings. Jet shapes and host light are illustrative.`}
+          width="1602"
+          height="755"
+          decoding="async"
+        />
+      </picture>
+      <canvas
+        data-canvas
+        role="img"
+        aria-label="Animated view of the recorded orbit. Positions are simulation data; host light, disk glyphs and jet shapes are illustrative, with jet brightness encoding log jet power."
+      ></canvas>
+      <p class="stage-status" data-status aria-hidden="true"></p>
+    </div>
+
+    <div class="sideplots">
+      <div class="history-panel">
+        <div class="plothead"><span>Jet power</span><small>log₁₀ P [erg s⁻¹]</small></div>
+        <svg class="chart" viewBox={`0 0 ${W} ${H}`} data-chart role="img" aria-label="Primary and secondary jet power over the whole recorded run. Each vertical stroke spans the minimum and maximum of every recorded row in a time bin, so spikes are kept. Hollow circles mark bins that contain exactly zero power. Click to jump to a time.">
+          {[25, 35, 45].map((v) => (
+            <>
+              <path d={`M${X0} ${pY(v)}H${X1}`} stroke="#2b3640" stroke-width=".6" />
+              <text x="8" y={pY(v) + 3}>{v}</text>
+            </>
+          ))}
+          <path d={powerP1} stroke="#ff8765" stroke-width="1.1" stroke-opacity=".8" fill="none" />
+          <path d={powerP2} stroke="#83c5df" stroke-width="1.1" stroke-opacity=".8" fill="none" />
+          <text x="8" y={ZERO_Y + 3}>0</text>
+          <path d={`M${X0} ${ZERO_Y}H${X1}`} stroke="#2b3640" stroke-width=".6" stroke-dasharray="2 3" />
+          {zerosP1.map((x) => <circle cx={x} cy={ZERO_Y} r="2.6" fill="none" stroke="#ff8765" stroke-width="1.2" />)}
+          {zerosP2.map((x) => <circle cx={x} cy={ZERO_Y} r="2.6" fill="none" stroke="#83c5df" stroke-width="1.2" />)}
+          {tTicks.map((t) => <text x={xT(t) - 3} y={H - 6}>{t}</text>)}
+          <text x={X1 - 36} y={H - 6}>{T.toFixed(2)}</text>
+          <path class="chart-cursor" data-cursor d={`M${cursorX} ${Y0 - 4}V${ZERO_Y + 6}`} stroke="#f0f1e9" stroke-width="1" stroke-dasharray="3 3" />
+        </svg>
+        <div class="legend">
+          <span><span class="sw" style="background:#ff8765"></span>Primary</span>
+          <span><span class="sw" style="background:#83c5df"></span>Secondary</span>
+          <span><span class="zero"></span>bin contains P = 0</span>
+          <span>time [Gyr]</span>
+        </div>
+      </div>
+      <div class="history-panel">
+        <div class="plothead"><span>Distance to the centre</span><small>cylindrical r [pc]</small></div>
+        <svg class="chart" viewBox={`0 0 ${W} ${H}`} data-chart role="img" aria-label={`Recorded cylindrical radius of the secondary over the whole run, from about 1 kpc down to ${meta.final_saved_radius_pc.toFixed(1)} pc at the last saved row. Click to jump to a time.`}>
+          {[0, rMax / 2, rMax].map((v) => (
+            <>
+              <path d={`M${X0} ${rY(v)}H${X1}`} stroke="#2b3640" stroke-width=".6" />
+              <text x="4" y={rY(v) + 3}>{v}</text>
+            </>
+          ))}
+          <path d={radiusPath} stroke="#bed0a6" stroke-width="1.1" stroke-opacity=".85" fill="none" />
+          {tTicks.map((t) => <text x={xT(t) - 3} y={H - 6}>{t}</text>)}
+          <text x={X1 - 36} y={H - 6}>{T.toFixed(2)}</text>
+          <path class="chart-cursor" data-cursor d={`M${cursorX} ${Y0 - 4}V${Y1 + 4}`} stroke="#f0f1e9" stroke-width="1" stroke-dasharray="3 3" />
+        </svg>
+        <div class="legend"><span>Min–max of all rows in each of {bins} time bins</span><span>time [Gyr]</span></div>
+      </div>
+    </div>
+
+    <dl class="stats" data-stats>
+      <div>
+        <dt>RECORDED TIME</dt>
+        <dd><span data-out="time">{d0.t_Gyr.toFixed(4)}</span> <small>Gyr</small><span class="sub" data-out="row">row {(defaultRow + 1).toLocaleString('en-US')} of {N.toLocaleString('en-US')}</span></dd>
+      </div>
+      <div>
+        <dt>CYLINDRICAL RADIUS</dt>
+        <dd><span data-out="radius">{fmtR(d0.r_pc)}</span> <small>pc</small><span class="sub" data-out="z">z = {(Math.abs(d0.z_pc) < 0.005 ? 0 : d0.z_pc).toFixed(2)} pc</span></dd>
+      </div>
+      <div>
+        <dt>SECONDARY MASS</dt>
+        <dd><span data-out="mass">{sci(d0.M2_Msun)}</span> <small>M☉</small><span class="sub" data-out="mass1">primary {sci(d0.M1_Msun)} M☉</span></dd>
+      </div>
+      <div>
+        <dt>SECONDARY JET POWER</dt>
+        <dd><span data-out="power">{sci(P2)}</span> <small>erg s⁻¹</small><span class="sub" data-out="power1">primary {sci(P1)} erg s⁻¹</span></dd>
+      </div>
+    </dl>
+
+    <div class="controls">
+      <button class="play" type="button" data-play aria-pressed="false" disabled>▶ Play</button>
+      <div class="scrub">
+        <input
+          type="range"
+          data-timeline
+          min="0"
+          max={Math.round(T * 10000)}
+          step="1"
+          value={Math.round(d0.t_Gyr * 10000)}
+          aria-label="Recorded simulation time"
+          aria-valuetext={`${d0.t_Gyr.toFixed(3)} billion years`}
+          disabled
+        />
+        <span class="scrub-label"><span>0 Gyr</span> · scrub the full {T.toFixed(3)} Gyr record · arrow keys step 0.1 Myr</span>
+      </div>
+      <label class="ctl">Speed
+        <select data-speed disabled>
+          <option value="25">Slow · ¼ orbit / s</option>
+          <option value="50" selected>Normal · ½ orbit / s</option>
+          <option value="150">Fast · 1½ orbits / s</option>
+        </select>
+      </label>
+      <label class="ctl">View
+        <select data-view disabled>
+          <option value="inclined" selected>Inclined 28°</option>
+          <option value="faceon">Face-on (x–y)</option>
+        </select>
+      </label>
+      <label class="ctl">Field
+        <select data-field disabled>
+          <option value="auto" selected>Auto zoom (×2 steps)</option>
+          <option value="full">Fixed ±1.8 kpc</option>
+        </select>
+      </label>
+    </div>
+    <div class="jumps">
+      <span>Jump to</span>
+      <button type="button" data-jump-t="0" disabled>Start</button>
+      <button type="button" data-jump-t="4.39" disabled>4.39 Gyr</button>
+      <button type="button" data-jump-t="8.70" disabled>8.70 Gyr</button>
+      <button type="button" data-jump-row={N - 10000} disabled>Final ~100 orbits</button>
+      <span class="rate" data-rate aria-live="off"></span>
+    </div>
+    <p class="labnote">
+      Playback advances a fixed number of simulation steps per second, so the simulated time per second of playback
+      changes along the run and is shown above. Host light, disk glyphs and jet shapes are illustrative. No merger is
+      shown.
+    </p>
+    <p class="visually-hidden" aria-live="polite" data-live></p>
+    <noscript>
+      <p class="noscript">
+        Interactive playback needs JavaScript. The still frame, plots and readouts above are built from the same recorded
+        data at {d0.t_Gyr.toFixed(3)} Gyr.
+      </p>
+    </noscript>
+  </div>
+  <figcaption class="figure-caption">
+    <span class="label">Figure 01</span>
+    <p>
+      <strong>From orbital motion to radio emission.</strong> Scrub through the orbit of the secondary black hole as it
+      spirals toward the primary in a simulation that is still in progress. The jet shapes and the light of the host
+      galaxy are illustrative.{' '}
+      <a href={url('colophon/#figure-01')}>About this figure.</a>
+    </p>
+  </figcaption>
+</figure>
+
+<script>
+  import { initInspiral } from '../scripts/inspiral';
+  const fig = document.getElementById('inspiral');
+  if (fig) initInspiral(fig);
+</script>

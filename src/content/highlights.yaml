@@ -1,0 +1,29 @@
+# The three "Questions I'm working on" items on the home page.
+# They are connected themes within ONE current project, not three results.
+accretion:
+  order: 1
+  eyebrow: 01 / Accretion
+  question: How do black holes feed?
+  text: Connecting a black hole’s motion through galactic gas to its evolving accretion rate and mass.
+  link: research/#dagn-radio
+  linkText: The dual-AGN project ↗
+  art: accretion
+  artCaption: Concept illustration · not data
+jets:
+  order: 2
+  eyebrow: 02 / Relativistic jets
+  question: How is that energy carried away?
+  text: Following the connection between accretion, magnetic fields and the power carried by relativistic jets.
+  link: research/#dagn-radio
+  linkText: Accretion and jet modeling ↗
+  art: jets
+  artCaption: Concept illustration · not data
+radio:
+  order: 3
+  eyebrow: 03 / Radio emission
+  question: What could a telescope see?
+  text: Developing synchrotron spectra and predictions for identifying dual AGNs in future radio surveys.
+  link: research/#dagn-radio
+  linkText: Toward predictions for the ngVLA ↗
+  art: radio
+  artCaption: Concept illustration · not an observation

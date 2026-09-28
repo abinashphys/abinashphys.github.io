@@ -1,0 +1,63 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getProfile } from '../lib/site';
+
+interface Props {
+  pub: CollectionEntry<'publications'>;
+  headingLevel?: 'h2' | 'h3';
+}
+const { pub, headingLevel = 'h3' } = Astro.props;
+const d = pub.data;
+const profile = await getProfile();
+const Heading = headingLevel;
+
+const typeLabel: Record<string, string> = {
+  'peer-reviewed': 'Peer-reviewed',
+  submitted: 'Submitted',
+  'in-prep': 'In preparation',
+  proceedings: 'Proceedings',
+  other: 'Other',
+};
+const venue = `${d.venue}${d.volume ? ` ${d.volume}${d.issue ? `(${d.issue})` : ''}` : ''}${d.pages ? `, ${d.pages}` : ''}`;
+const link = d.doi ? `https://doi.org/${d.doi}` : d.url;
+---
+
+<article class="pub-entry">
+  <div class="year">{d.year}</div>
+  <div>
+    <span class="eyebrow">{typeLabel[d.type]} / {d.venue} {d.volume}{d.issue && `(${d.issue})`}{d.pages && `, ${d.pages}`}</span>
+    <Heading>{d.title}</Heading>
+    <p>
+      {
+        d.authors.map((a, i) => (
+          <>
+            {a === profile.nameShort ? <span class="me">{a}</span> : a}
+            {i < d.authors.length - 2 ? ', ' : i === d.authors.length - 2 ? ' & ' : ''}
+          </>
+        ))
+      }
+    </p>
+    <p>
+      <em>{venue}</em> ({d.year}){d.doi && `. doi:${d.doi}`}
+    </p>
+    {
+      d.contribution && (
+        <div class="contrib">
+          <span class="eyebrow">My contribution</span>
+          <ul>
+            {d.contribution.map((c) => (
+              <li>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+    {
+      link && (
+        <a class="link" href={link} rel="noopener">
+          Read the paper ↗<span class="visually-hidden">: {d.title}</span>
+        </a>
+      )
+    }
+  </div>
+</article>

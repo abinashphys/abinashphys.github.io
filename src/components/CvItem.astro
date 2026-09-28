@@ -1,0 +1,37 @@
+---
+interface Props {
+  item: {
+    title: string;
+    org?: string;
+    place?: string;
+    date?: string;
+    detail?: string;
+    link?: string;
+    bullets?: string[];
+  };
+  headingLevel?: 'h3' | 'h4';
+}
+const { item, headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+const orgLine = [item.org, item.place].filter(Boolean).join(', ');
+---
+
+<div class="cv-item">
+  <div class="cv-item__top">
+    <H class="cv-item__title">
+      {item.link ? <a href={item.link} rel="noopener">{item.title}</a> : item.title}
+    </H>
+    {item.date && <p class="cv-item__date">{item.date}</p>}
+  </div>
+  {orgLine && <p class="cv-item__org">{orgLine}</p>}
+  {item.detail && <p class="cv-item__detail">{item.detail}</p>}
+  {
+    item.bullets && item.bullets.length > 0 && (
+      <ul>
+        {item.bullets.map((b) => (
+          <li>{b}</li>
+        ))}
+      </ul>
+    )
+  }
+</div>

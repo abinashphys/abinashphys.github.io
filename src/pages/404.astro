@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { url } from '../lib/site';
+---
+
+<Base title="Page not found">
+  <PageHead label="Error 404" title="Not found.">
+    <p>This page doesn’t exist, or it has moved. <a href={url('')}>Back to the home page</a>.</p>
+  </PageHead>
+  <div class="wrap page-body"></div>
+</Base>

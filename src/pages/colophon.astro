@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+---
+
+<Base title="Colophon" description="What the figures on this site show, what is illustration, and how the site is built.">
+  <PageHead label="Credits" title="Colophon.">
+    <p>What each figure shows, and what is illustration.</p>
+  </PageHead>
+
+  <div class="wrap page-body" style="padding-top:24px">
+    <div class="colophon prose">
+      <h2 id="figure-01">Figure 01 — the inspiral</h2>
+      <p>
+        The interactive figure on the home page follows a secondary supermassive black hole as it spirals toward the
+        primary in a post-merger galaxy. The orbit comes from a semi-analytic simulation that is part of ongoing work;
+        the results are preliminary and not yet published.
+      </p>
+      <ul>
+        <li><em>From the simulation:</em> the black holes’ positions, masses and jet powers, the readouts and the two history plots.</li>
+        <li><em>Illustrative:</em> the host-galaxy light, the accretion-disk glyphs, and the jets’ length, direction and texture. Jet brightness follows the simulated jet power; a jet that is switched off is drawn as off.</li>
+        <li>The figure stops where the simulated inspiral stops; no black-hole merger is shown.</li>
+      </ul>
+
+      <h2 id="provenance">Other figures</h2>
+      <ul>
+        <li>The three research-highlight drawings on the home page are concept illustrations, not data or observations.</li>
+        <li>The synchrotron spectra on the Research page are textbook curves in arbitrary units, not results of the project.</li>
+      </ul>
+
+      <h2>Images</h2>
+      <p>Portrait of Abinash Das. No third-party images are used.</p>
+
+      <h2>Build</h2>
+      <p>
+        Built with <a href="https://astro.build/" rel="noopener">Astro</a> and hand-written CSS, and hosted on GitHub Pages.
+        Type is set in system fonts (Arial/Helvetica, Georgia and the system monospace). The site uses no analytics,
+        trackers or cookies. The figure never plays automatically and respects reduced-motion settings.
+      </p>
+    </div>
+  </div>
+</Base>

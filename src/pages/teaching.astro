@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { getCvSections } from '../lib/site';
+
+const sections = await getCvSections();
+const teaching = sections.find((s) => s.id === 'teaching');
+const service = sections.find((s) => s.id === 'service');
+const blocks = [teaching, service].filter((b) => b !== undefined);
+---
+
+<Base title="Teaching" current="teaching/">
+  <PageHead label="Teaching & outreach" title="Teaching.">
+    <p>
+      Since Spring 2025 I have been a Graduate Teaching Assistant in the School of Physics at Georgia Tech, in
+      introductory electricity and magnetism and in the modern optics laboratory.
+    </p>
+  </PageHead>
+
+  <div class="wrap page-body">
+    {
+      blocks.map((b, i) => (
+        <section class="section" aria-labelledby={`${b.id}-h`}>
+          <div class="section-head">
+            <h2 id={`${b.id}-h`}>{b.data.heading}</h2>
+            <span class="eyebrow">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <ul class="rows">
+            {b.data.items.map((t) => (
+              <li class="row">
+                <p class="row__when">{t.date ?? ''}</p>
+                <div class="row__what prose">
+                  <h3>{t.title}</h3>
+                  {t.bullets && (
+                    <ul>
+                      {t.bullets.map((x) => (
+                        <li>{x}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <p class="row__where">
+                  {t.org ?? ''}
+                  {(t.detail || t.place) && <span>{[t.detail, t.place].filter(Boolean).join(' · ')}</span>}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>

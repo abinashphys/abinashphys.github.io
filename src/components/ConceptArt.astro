@@ -1,0 +1,58 @@
+---
+// The three concept drawings from the approved design. Schematic artwork only —
+// none of them is simulation output or an observation.
+interface Props {
+  kind: 'accretion' | 'jets' | 'radio';
+}
+const { kind } = Astro.props;
+---
+
+{
+  kind === 'accretion' && (
+    <svg class="research-art" viewBox="0 0 380 220" role="img" aria-label="Schematic of gas approaching a black hole; not simulation data.">
+      <rect width="380" height="220" fill="#e0e6d9" />
+      <g fill="none" stroke="#70816d" stroke-width="1">
+        <ellipse cx="190" cy="110" rx="145" ry="61" />
+        <ellipse cx="190" cy="110" rx="113" ry="47" />
+        <ellipse cx="190" cy="110" rx="80" ry="33" />
+        <path d="M36 96Q88 42 190 96T350 125M25 140Q122 189 190 120T345 81" stroke-dasharray="3 5" />
+      </g>
+      <ellipse cx="190" cy="110" rx="38" ry="16" fill="#27392f" />
+      <circle cx="190" cy="110" r="13" fill="#f5f2ea" />
+      <path d="M150 51l11 0 -7 8M279 153l-11 0 7-8" fill="none" stroke="#b63e2e" stroke-width="2" />
+    </svg>
+  )
+}
+{
+  kind === 'jets' && (
+    <svg class="research-art" viewBox="0 0 380 220" role="img" aria-label="Schematic two-sided jet with magnetic field lines; not simulation data.">
+      <rect width="380" height="220" fill="#273b3a" />
+      <g transform="translate(190 110) rotate(-25)" fill="none">
+        <path d="M-160 -25Q-45 -13 0 0Q45 13 160 25M-160 25Q-45 13 0 0Q45 -13 160 -25" stroke="#85bbbe" />
+        <path d="M-160 -36Q-48 -16 0 0Q48 16 160 36M-160 36Q-48 16 0 0Q48 -16 160 -36" stroke="#85bbbe" opacity=".35" />
+        <path d="M-150 0H150" stroke="#ff9874" stroke-width="3" />
+        <ellipse rx="17" ry="39" stroke="#f1d3a9" />
+        <circle r="12" fill="#172321" stroke="#f1d3a9" stroke-width="2" />
+      </g>
+    </svg>
+  )
+}
+{
+  kind === 'radio' && (
+    <svg class="research-art" viewBox="0 0 380 220" role="img" aria-label="Schematic radio-emission contours around two sources; not an observed radio map.">
+      <rect width="380" height="220" fill="#e9cabb" />
+      <g fill="none" stroke="#7f3f35">
+        <ellipse cx="135" cy="125" rx="62" ry="35" transform="rotate(-30 135 125)" />
+        <ellipse cx="135" cy="125" rx="43" ry="23" transform="rotate(-30 135 125)" />
+        <ellipse cx="135" cy="125" rx="23" ry="12" transform="rotate(-30 135 125)" />
+        <ellipse cx="255" cy="88" rx="42" ry="30" transform="rotate(-30 255 88)" />
+        <ellipse cx="255" cy="88" rx="27" ry="19" transform="rotate(-30 255 88)" />
+        <ellipse cx="255" cy="88" rx="13" ry="9" transform="rotate(-30 255 88)" />
+      </g>
+      <path d="M70 175H315" stroke="#9d7766" stroke-dasharray="2 5" />
+      <text x="70" y="196" font-family="monospace" font-size="10" fill="#653f33">
+        two cores / one merging galaxy
+      </text>
+    </svg>
+  )
+}

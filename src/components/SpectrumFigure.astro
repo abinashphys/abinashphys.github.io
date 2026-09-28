@@ -1,0 +1,94 @@
+---
+// Textbook synchrotron self-absorbed spectra for two compact cores, arbitrary units.
+// ILLUSTRATION ONLY: S ∝ ν^{5/2}(1 − e^{−τ}), τ ∝ ν^{−(p+4)/2}, with p = 2.5.
+// These curves explain the physics; they are not results from the research project.
+interface Props {
+  id?: string;
+}
+const { id = 'fig-spectrum' } = Astro.props;
+
+const p = 2.5;
+const X0 = 78, X1 = 604, Y0 = 34, Y1 = 344; // plot box
+const lx0 = -1.3, lx1 = 1.9; // log10(ν) range
+const ly0 = -2.1, ly1 = 0.55; // log10(S) range
+
+const S = (nu: number, nuT: number, C: number) => {
+  const tau = Math.pow(nu / nuT, -(p + 4) / 2);
+  return C * Math.pow(nu / nuT, 2.5) * (1 - Math.exp(-tau));
+};
+const X = (lx: number) => X0 + ((lx - lx0) / (lx1 - lx0)) * (X1 - X0);
+const Y = (ly: number) => Y1 - ((ly - ly0) / (ly1 - ly0)) * (Y1 - Y0);
+
+function curve(nuT: number, C: number) {
+  const pts: string[] = [];
+  for (let i = 0; i <= 160; i++) {
+    const lx = lx0 + ((lx1 - lx0) * i) / 160;
+    const ly = Math.log10(S(Math.pow(10, lx), nuT, C));
+    if (ly < ly0 || ly > ly1) continue;
+    pts.push(`${pts.length ? 'L' : 'M'}${X(lx).toFixed(1)} ${Y(ly).toFixed(1)}`);
+  }
+  return pts.join('');
+}
+const c1 = curve(Math.pow(10, 0.05), 1.6);
+const c2 = curve(Math.pow(10, 0.85), 0.55);
+
+// where to place the peak markers
+function peak(nuT: number, C: number) {
+  let best = { lx: 0, ly: -99 };
+  for (let i = 0; i <= 400; i++) {
+    const lx = lx0 + ((lx1 - lx0) * i) / 400;
+    const ly = Math.log10(S(Math.pow(10, lx), nuT, C));
+    if (ly > best.ly) best = { lx, ly };
+  }
+  return { x: X(best.lx), y: Y(best.ly) };
+}
+const p1 = peak(Math.pow(10, 0.05), 1.6);
+const p2 = peak(Math.pow(10, 0.85), 0.55);
+---
+
+<figure class="fig-spec" id={id}>
+  <svg viewBox="0 0 640 420" role="img" aria-labelledby={`${id}-t ${id}-d`} focusable="false">
+    <title id={`${id}-t`}>Schematic synchrotron spectra of two radio cores</title>
+    <desc id={`${id}-d`}>
+      Illustration in arbitrary units. Each curve rises steeply at low frequency, where the source is optically thick
+      (flux density proportional to frequency to the 5/2 power), turns over, and then falls as a power law where it is
+      optically thin. The second core turns over at a higher frequency.
+    </desc>
+    <defs>
+      <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 1L9 5L0 9" fill="none" stroke="currentColor" stroke-width="1.3" />
+      </marker>
+    </defs>
+
+    <g class="axes" aria-hidden="true">
+      <path d={`M${X0} ${Y1 + 8}V${Y0 - 14}`} marker-end={`url(#${id}-arrow)`} />
+      <path d={`M${X0 - 8} ${Y1}H${X1 + 18}`} marker-end={`url(#${id}-arrow)`} />
+      <text x={X1 + 16} y={Y1 + 30} text-anchor="end">log frequency, ν →</text>
+      <text x={X0 - 22} y={Y0 + 60} text-anchor="middle" transform={`rotate(-90 ${X0 - 22} ${Y0 + 60})`}>log flux density →</text>
+      <text x={X0 + 8} y={Y1 + 30}>arbitrary units</text>
+    </g>
+
+    <g class="turnovers" aria-hidden="true">
+      <path d={`M${p1.x.toFixed(1)} ${(p1.y + 10).toFixed(1)}V${Y1}`} />
+      <path d={`M${p2.x.toFixed(1)} ${(p2.y + 10).toFixed(1)}V${Y1}`} />
+    </g>
+
+    <path class="curve curve--1" d={c1} aria-hidden="true" />
+    <path class="curve curve--2" d={c2} aria-hidden="true" />
+
+    <g class="notes" aria-hidden="true">
+      <text x={X0 + 12} y={Y(-0.15)}>S ∝ ν<tspan dy="-7" font-size="0.75em">5/2</tspan></text>
+      <text x={X0 + 12} y={Y(-0.15) + 21}>optically thick</text>
+      <text x={X(1.05)} y={Y(0.25)}>S ∝ ν<tspan dy="-7" font-size="0.75em">−α</tspan></text>
+      <text x={X(1.08)} y={Y(0.05)}><tspan>optically thin</tspan></text>
+      <text class="lab lab--1" x={p1.x - 6} y={p1.y - 14} text-anchor="middle">core 1</text>
+      <text class="lab lab--2" x={p2.x + 4} y={p2.y - 14} text-anchor="middle">core 2</text>
+    </g>
+  </svg>
+  <figcaption>
+    <span class="tag">Illustration</span>
+    Textbook spectra of compact synchrotron sources with self-absorption, in arbitrary units: optically thick
+    (S ∝ ν<sup>5/2</sup>) below the turnover and optically thin (S ∝ ν<sup>−α</sup>) above it. Included to explain the
+    physics being modeled. Not a result of this project.
+  </figcaption>
+</figure>

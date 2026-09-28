@@ -1,0 +1,30 @@
+---
+import { getProfile, url } from '../lib/site';
+const profile = await getProfile();
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="footer-main">
+      <div>
+        <h2>Let’s talk physics.</h2>
+        <a href={`mailto:${profile.email}`}>{profile.email} ↗</a>
+      </div>
+      <p class="footer-right">
+        {profile.department}<br />
+        {profile.center}<br />
+        {profile.institution} · Atlanta
+      </p>
+    </div>
+    <div class="footer-bottom">
+      <span>© {year} {profile.name}</span>
+      <span>
+        <a href={`https://github.com/${profile.github}`} rel="noopener">GitHub ↗</a> &nbsp;/&nbsp;
+        <a href={url(profile.cvPdf)}>CV (PDF) ↗</a> &nbsp;/&nbsp;
+        <a href={profile.writing.url} rel="noopener">Cosmic Conundrum ↗</a> &nbsp;/&nbsp;
+        <a href={url('colophon/')}>Colophon</a>
+      </span>
+    </div>
+  </div>
+</footer>

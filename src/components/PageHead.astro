@@ -1,0 +1,19 @@
+---
+interface Props {
+  label: string;
+  title: string;
+}
+const { label, title } = Astro.props;
+---
+
+<section class="page-head wrap" aria-labelledby="page-title">
+  <span class="eyebrow">{label}</span>
+  <h1 class="page-head__title" id="page-title">{title}</h1>
+  {
+    Astro.slots.has('default') && (
+      <div class="page-head__intro">
+        <slot />
+      </div>
+    )
+  }
+</section>

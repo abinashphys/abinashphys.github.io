@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import CvItem from '../components/CvItem.astro';
+import { getProfile, getResearch, getPublications, getCvSections, url } from '../lib/site';
+
+const profile = await getProfile();
+const research = await getResearch();
+const pubs = await getPublications();
+const sections = await getCvSections();
+
+// Build one ordered list: YAML sections plus research and publications from their collections.
+type Block = { id: string; heading: string; order: number; items: any[] };
+const blocks: Block[] = sections.map((s) => ({ id: s.id, heading: s.data.heading, order: s.data.order, items: s.data.items }));
+blocks.push({
+  id: 'publications',
+  heading: 'Peer-Reviewed Publications',
+  order: 3,
+  items: pubs
+    .filter((p) => p.data.type === 'peer-reviewed')
+    .map((p) => ({
+      title: p.data.title,
+      detail: `${p.data.authors.join(', ')}. ${p.data.venue}${p.data.volume ? `, ${p.data.volume}` : ''}${p.data.issue ? `(${p.data.issue})` : ''}${p.data.pages ? `, ${p.data.pages}` : ''}.${p.data.doi ? ` doi:${p.data.doi}` : ''}`,
+      date: String(p.data.year),
+      link: p.data.doi ? `https://doi.org/${p.data.doi}` : p.data.url,
+    })),
+});
+blocks.push({
+  id: 'research',
+  heading: 'Research Experience',
+  order: 4,
+  items: research.map((r) => ({
+    title: r.data.title,
+    org: [r.data.role, r.data.unit, r.data.institution].filter(Boolean).join(', '),
+    detail: [r.data.advisors, r.data.funding && `Funding: ${r.data.funding}`].filter(Boolean).join(' · '),
+    date: r.data.period,
+    anchor: r.id,
+    bullets: bulletsOf(r.body ?? ''),
+    summary: r.data.summary,
+  })),
+});
+blocks.sort((a, b) => a.order - b.order);
+
+/** Pull the "- " bullet points out of a project's Markdown body (joining wrapped lines). */
+function bulletsOf(md: string): string[] {
+  const out: string[] = [];
+  for (const line of md.split('\n')) {
+    if (/^\s*-\s+/.test(line)) out.push(line.replace(/^\s*-\s+/, '').trim());
+    else if (out.length && /^\s{2,}\S/.test(line)) out[out.length - 1] += ' ' + line.trim();
+  }
+  return out.map((b) => b.replace(/\*\*?([^*]+)\*\*?/g, '$1'));
+}
+---
+
+<Base title="CV" current="cv/" description={`Curriculum vitae of ${profile.name}, ${profile.position}, ${profile.institution}.`}>
+  <PageHead label="Curriculum vitae" title="CV.">
+    <p>
+      {profile.position}, {profile.department}, {profile.institution} · {profile.center}<br />
+      <a href={`mailto:${profile.email}`}>{profile.email}</a> · <a href={`https://github.com/${profile.github}`} rel="noopener">github.com/{profile.github}</a>
+    </p>
+    <div class="cv-actions">
+      <a href={url(profile.cvPdf)}>Download the PDF ↗</a>
+    </div>
+  </PageHead>
+
+  <div class="wrap page-body" style="padding-top:32px">
+    {
+      blocks.map((b) => (
+        <section class="cv-section" aria-labelledby={`cv-${b.id}`}>
+          <h2 id={`cv-${b.id}`}>{b.heading}</h2>
+          <div class="cv-items">
+            {b.items.map((item) =>
+              b.id === 'research' ? (
+                <div class="cv-item">
+                  <div class="cv-item__top">
+                    <h3 class="cv-item__title">
+                      <a href={url(`research/#${item.anchor}`)}>{item.title}</a>
+                    </h3>
+                    <p class="cv-item__date">{item.date}</p>
+                  </div>
+                  <p class="cv-item__org">{item.org}</p>
+                  {item.detail && <p class="cv-item__detail">{item.detail}</p>}
+                  {item.bullets.length ? (
+                    <ul>
+                      {item.bullets.map((x: string) => (
+                        <li>{x}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p class="cv-item__detail">{item.summary}</p>
+                  )}
+                </div>
+              ) : (
+                <CvItem item={item} />
+              ),
+            )}
+          </div>
+        </section>
+      ))
+    }
+    <p class="muted" style="font-size:13px;margin-top:24px">
+      Full descriptions of each research project are on the <a href={url('research/')} style="text-decoration:underline">Research</a> page. The PDF is
+      the authoritative version of this CV.
+    </p>
+  </div>
+</Base>

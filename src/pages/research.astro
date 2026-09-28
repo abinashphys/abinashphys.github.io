@@ -1,0 +1,184 @@
+---
+import { render, getEntry, getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SpectrumFigure from '../components/SpectrumFigure.astro';
+import CvItem from '../components/CvItem.astro';
+import { getProfile, getResearch, getCvSections, url } from '../lib/site';
+
+const profile = await getProfile();
+const research = await getResearch();
+const rendered = await Promise.all(
+  research.map(async (r) => {
+    const { Content } = await render(r);
+    const pub = r.data.publication ? await getEntry('publications', r.data.publication) : undefined;
+    return { r, Content, pub };
+  }),
+);
+const current = rendered.filter((x) => x.r.data.status === 'current');
+const past = rendered.filter((x) => x.r.data.status === 'past');
+const projects = (await getCvSections()).find((s) => s.id === 'projects');
+const courseProjects = await Promise.all(
+  (await getCollection('courseProjects'))
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(async (c) => ({ c, Content: (await render(c)).Content })),
+);
+// Course projects shown in full above are not repeated in the list below.
+const featuredCourses = new Set(courseProjects.map(({ c }) => c.data.course));
+const otherProjects = projects
+  ? projects.data.items.filter((item) => !featuredCourses.has((item.org ?? '').split(',')[0].trim()))
+  : [];
+---
+
+<Base title="Research" current="research/">
+  <PageHead label="Research" title="Research.">
+    <p>{profile.bio} <a href={url('#inspiral')}>See the interactive orbit figure ↗</a></p>
+  </PageHead>
+
+  <div class="wrap page-body">
+    {
+      current.map(({ r, Content }) => (
+        <section class="section" aria-labelledby={`${r.id}-h`} id={r.id}>
+          <div class="section-head">
+            <h2>Current project</h2>
+            <span class="eyebrow">01 — {r.data.period}</span>
+          </div>
+          <article class="project project--current">
+            <div class="project__meta">
+              <span class="eyebrow">In progress</span>
+              <h2 id={`${r.id}-h`}>{r.data.title}</h2>
+              <dl class="facts">
+                <div>
+                  <dt>Role</dt>
+                  <dd>
+                    {r.data.role}, {r.data.unit}, {r.data.institution}
+                  </dd>
+                </div>
+                {r.data.advisors && (
+                  <div>
+                    <dt>Advisors</dt>
+                    <dd>{r.data.advisors.replace(/^[^:]+:\s*/, '')}</dd>
+                  </div>
+                )}
+                {r.data.funding && (
+                  <div>
+                    <dt>Funding</dt>
+                    <dd>{r.data.funding}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            <div class="project__body prose project__body--lead">
+              <Content />
+              <div style="margin-top:2.5rem">
+                <SpectrumFigure id={`${r.id}-spec`} />
+              </div>
+            </div>
+          </article>
+        </section>
+      ))
+    }
+
+    <section class="section" aria-labelledby="past-h">
+      <div class="section-head">
+        <h2 id="past-h">Earlier research</h2>
+        <span class="eyebrow">02 — 2021–2026</span>
+      </div>
+      {
+        past.map(({ r, Content, pub }) => (
+          <article class="project" id={r.id} aria-labelledby={`${r.id}-h`}>
+            <div class="project__meta">
+              <span class="eyebrow">{r.data.period}</span>
+              <h3 id={`${r.id}-h`}>{r.data.title}</h3>
+              <p style="font-size:14px;line-height:1.55">
+                {r.data.role}
+                <br />
+                <span class="muted">
+                  {r.data.unit ? `${r.data.unit}, ` : ''}
+                  {r.data.institution}
+                  <br />
+                  {r.data.advisors}
+                </span>
+              </p>
+            </div>
+            <div class="project__body prose">
+              <p class="summary">{r.data.summary}</p>
+              <Content />
+              {pub && (
+                <p style="margin-top:1.25rem">
+                  <a class="textlink" href={url('publications/')} style="text-decoration:none">
+                    Related publication: {pub.data.venue} ({pub.data.year})
+                  </a>
+                </p>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </section>
+
+    <section class="section" aria-labelledby="projects-h">
+      <div class="section-head">
+        <h2 id="projects-h">{projects?.data.heading ?? 'Academic projects'}</h2>
+        <span class="eyebrow">03 — 2022–2025</span>
+      </div>
+      {
+        courseProjects.map(({ c, Content }) => (
+          <article class="project" id={c.id} aria-labelledby={`${c.id}-h`}>
+            <div class="project__meta">
+              <span class="eyebrow">{c.data.period} · Course project</span>
+              <h3 id={`${c.id}-h`}>{c.data.title}</h3>
+              <dl class="facts">
+                <div>
+                  <dt>Course</dt>
+                  <dd>
+                    {c.data.course}, {c.data.institution}
+                  </dd>
+                </div>
+                {c.data.instructor && (
+                  <div>
+                    <dt>Instructor</dt>
+                    <dd>{c.data.instructor}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            <div class="project__body prose project__body--lead">
+              <Content />
+              <div class="course-parts">
+                {c.data.parts.map((part) => (
+                  <div class="course-part">
+                    <h4 class="eyebrow">{part.label}</h4>
+                    <p>{part.text}</p>
+                    {part.shows && (
+                      <p class="course-part__shows">
+                        <span class="label">Figures</span> {part.shows}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+      {
+        otherProjects.length > 0 && (
+          <div class="project">
+            <div class="project__meta">
+              <span class="eyebrow">Earlier course projects</span>
+              <p class="muted" style="font-size:15px;max-width:22rem;margin-top:10px">
+                University of Arizona, listed with their collaborators.
+              </p>
+            </div>
+            <div class="project__body">
+              {otherProjects.map((item) => (
+                <CvItem item={item} />
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </section>
+  </div>
+</Base>
